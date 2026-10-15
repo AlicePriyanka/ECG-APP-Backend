@@ -1,0 +1,40 @@
+﻿name: ECG Backend PHP Checks
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  php-checks:
+    name: PHP Syntax Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo, pdo_mysql
+          coverage: none
+
+      - name: Show PHP version
+        run: php -v
+
+      - name: Validate PHP syntax
+        shell: bash
+        run: |
+          set -e
+          find api -type f -name '*.php' -print0 |
+            xargs -0 -n1 php -l
+
+      - name: Verify database schema file exists
+        run: test -s DB/ecg_app_db.sql
